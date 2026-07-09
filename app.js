@@ -454,13 +454,16 @@ function renderDataList(items) {
           <polyline points="14 2 14 8 20 8"/>
         </svg>
         <h3>Kayıt Bulunamadı</h3>
-        <p>Yeni k  container.innerHTML = items.map(item => {
+        <p>Yeni kayıt eklemek için "Yeni IP Kaydı" butonuna basın.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
     const hasIp = item.adslIp || item.mobilIp;
     const preview = item.adslIp || item.mobilIp || 'IP bilgisi yok';
     return `
       <div class="data-card accordion-card" id="dc-${item.id}" onclick="toggleCard('${item.id}','data',event)">
-
-        <!-- KAPATIK HEAD -->
         <div class="card-head">
           <div class="card-head-left">
             <div class="data-card-title">${escHtml(item.title)}</div>
@@ -471,8 +474,6 @@ function renderDataList(items) {
             <svg class="card-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
-
-        <!-- GENLİŞİLEN İÇERİK -->
         <div class="card-body-expand">
           ${hasIp ? `<div class="ip-grid">
             ${item.adslIp ? `<div class="ip-item"><div class="ip-label">ADSL IP</div><div class="ip-value">${escHtml(item.adslIp)}</div>${item.adslPort ? `<div class="ip-port">Port: ${escHtml(item.adslPort)}</div>` : ''}</div>` : ''}
@@ -492,15 +493,10 @@ function renderDataList(items) {
             </button>
           </div>
         </div>
-
-      </div>`;
-  }).join('');        </svg>
-            Sil
-          </button>
-        </div>
       </div>`;
   }).join('');
 }
+
 
 // --- ADD / EDIT DATA MODAL ---
 function openAddDataModal() {
