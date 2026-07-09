@@ -1,0 +1,13 @@
+Bu klasöre ürün resimlerinizi ekleyin.
+
+Dosya adları app.js içindeki BANNER_IMAGES dizisiyle eşleşmeli:
+- urun1.jpg
+- urun2.jpg
+- urun3.jpg
+- urun4.jpg
+- urun5.jpg
+
+Daha fazla veya farklı isimde eklemek isterseniz
+app.js dosyasındaki BANNER_IMAGES dizisini güncelleyin.
+
+Desteklenen formatlar: .jpg, .jpeg, .png, .webp
