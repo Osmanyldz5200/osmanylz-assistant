@@ -1,5 +1,5 @@
 // OsmanYLDZ İş Asistanı — Service Worker
-const CACHE_NAME = 'osmanylz-v6';
+const CACHE_NAME = 'osmanylz-v7';
 const CACHED_URLS = [
   '/styles.css?v=4',
   '/app.js?v=4',
