@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 
@@ -248,7 +248,7 @@
               <div class="dashboard-main" style="margin-top:20px;">
 
                 <!-- HIZLI NOT EKLE -->
-                <div class="card">
+                <div class="card admin-only">
                   <div class="dash-section-header" style="margin-bottom:14px;">
                     <h3 class="card-title" style="margin:0;">✍️ Hızlı Not Ekle</h3>
                     <span class="quick-save-badge" id="quick-save-badge" style="display:none;">✓ Kaydedildi</span>
@@ -312,7 +312,7 @@
                 <h1 class="page-title">Banka İpleri</h1>
                 <p class="page-subtitle">IP adresleri ve bağlantı bilgileri</p>
               </div>
-              <button class="btn btn-primary" onclick="openAddDataModal()">
+              <button class="btn btn-primary admin-only" onclick="openAddDataModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
@@ -339,7 +339,7 @@
                 <h1 class="page-title">İş Notları</h1>
                 <p class="page-subtitle">Genel notlar, teknik bilgiler ve kayıtlar</p>
               </div>
-              <button class="btn btn-primary" onclick="openAddNoteModal()">
+              <button class="btn btn-primary admin-only" onclick="openAddNoteModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
@@ -496,7 +496,7 @@
                 <h1 class="page-title">Rehber</h1>
                 <p class="page-subtitle">Kişi ve iletişim bilgileri</p>
               </div>
-              <button class="btn btn-primary" onclick="openAddContactModal()">
+              <button class="btn btn-primary admin-only" onclick="openAddContactModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
@@ -529,6 +529,35 @@
             </div>
 
             <div class="settings-grid">
+
+              <div class="card settings-card">
+                <div class="settings-card-header">
+                  <div class="settings-icon settings-icon--purple">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>Admin Girişi</h3>
+                    <p class="text-muted">Ekleme/Düzenleme yetkisi</p>
+                  </div>
+                </div>
+                
+                <div id="admin-login-section">
+                  <div class="form-group" style="margin-bottom:8px;">
+                    <input type="text" id="admin-user" class="form-control" placeholder="Kullanıcı Adı">
+                  </div>
+                  <div class="form-group" style="margin-bottom:12px;">
+                    <input type="password" id="admin-pass" class="form-control" placeholder="Şifre">
+                  </div>
+                  <button class="btn btn-primary w-full" onclick="loginAdmin()">Giriş Yap</button>
+                </div>
+
+                <div id="admin-logout-section" style="display:none; text-align:center;">
+                  <div class="status-badge connected" style="margin-bottom: 12px; display: inline-block;">✅ Admin Modu Aktif</div>
+                  <button class="btn btn-secondary w-full" onclick="logoutAdmin()">Çıkış Yap</button>
+                </div>
+              </div>
 
               <div class="card settings-card">
                 <div class="settings-card-header">

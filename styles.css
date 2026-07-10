@@ -57,6 +57,17 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
+/* ADMIN SECURITY */
+.admin-only {
+  display: none !important;
+}
+body.is-admin .admin-only {
+  display: flex !important; /* Button and cards flex setup for existing UI */
+}
+body.is-admin div.card.admin-only {
+  display: flex !important;
+  flex-direction: column;
+}
 button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
 input, textarea, select { font-family: inherit; }
 a { color: inherit; text-decoration: none; }

@@ -29,14 +29,53 @@ let state = {
   editingDataId: null,
   editingNoteId: null,
   editingContactId: null,
+  isAdmin: localStorage.getItem('osmanylz_admin') === 'true',
 };
 
 let confirmCallback = null;
 
 // =====================================================
+// ADMIN AUTHENTICATION
+// =====================================================
+function loginAdmin() {
+  const user = document.getElementById('admin-user')?.value.trim();
+  const pass = document.getElementById('admin-pass')?.value.trim();
+  if (user === 'osman' && pass === '123456') {
+    localStorage.setItem('osmanylz_admin', 'true');
+    state.isAdmin = true;
+    applyAdminState();
+    document.getElementById('admin-user').value = '';
+    document.getElementById('admin-pass').value = '';
+    showToast('Admin girişi başarılı!', 'success');
+  } else {
+    showToast('Hatalı kullanıcı adı veya şifre.', 'error');
+  }
+}
+
+function logoutAdmin() {
+  localStorage.setItem('osmanylz_admin', 'false');
+  state.isAdmin = false;
+  applyAdminState();
+  showToast('Çıkış yapıldı, görüntüleme modundasınız.', 'info');
+}
+
+function applyAdminState() {
+  if (state.isAdmin) {
+    document.body.classList.add('is-admin');
+    document.getElementById('admin-login-section').style.display = 'none';
+    document.getElementById('admin-logout-section').style.display = 'block';
+  } else {
+    document.body.classList.remove('is-admin');
+    document.getElementById('admin-login-section').style.display = 'block';
+    document.getElementById('admin-logout-section').style.display = 'none';
+  }
+}
+
+// =====================================================
 // FIREBASE INIT & REALTIME LISTENERS
 // =====================================================
 function initFirebase() {
+  applyAdminState();
   try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
@@ -554,11 +593,11 @@ function renderDataList(items) {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
               Detay
             </button>
-            <button class="btn btn-ghost btn-sm" onclick="openEditDataModal('${item.id}')">
+            <button class="btn btn-ghost btn-sm admin-only" onclick="openEditDataModal('${item.id}')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Düzenle
             </button>
-            <button class="btn btn-danger btn-sm" onclick="confirmDeleteData('${item.id}', '${escHtml(item.title).replace(/'/g,"\\'")}')">
+            <button class="btn btn-danger btn-sm admin-only" onclick="confirmDeleteData('${item.id}', '${escHtml(item.title).replace(/'/g,"\\'")}')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
               Sil
             </button>
@@ -769,11 +808,11 @@ function renderNotesList(items) {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
             Detay
           </button>
-          <button class="btn btn-ghost btn-sm" onclick="openEditNoteModal('${item.id}')">
+          <button class="btn btn-ghost btn-sm admin-only" onclick="openEditNoteModal('${item.id}')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Düzenle
           </button>
-          <button class="btn btn-danger btn-sm" onclick="confirmDeleteNote('${item.id}', '${escHtml(item.title).replace(/'/g,"\\'")}')">
+          <button class="btn btn-danger btn-sm admin-only" onclick="confirmDeleteNote('${item.id}', '${escHtml(item.title).replace(/'/g,"\\'")}')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
             Sil
           </button>
@@ -1045,8 +1084,8 @@ function renderContactsList(items) {
         </div>` : ''}
       </div>
       <div class="contact-card-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openEditContactModal('${c.id}')">Düzenle</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDeleteContact('${c.id}', '${escHtml(c.name).replace(/'/g,"\\'")}')">Sil</button>
+        <button class="btn btn-ghost btn-sm admin-only" onclick="openEditContactModal('${c.id}')">Düzenle</button>
+        <button class="btn btn-danger btn-sm admin-only" onclick="confirmDeleteContact('${c.id}', '${escHtml(c.name).replace(/'/g,"\\'")}')">Sil</button>
       </div>
     </div>`).join('');
 }
