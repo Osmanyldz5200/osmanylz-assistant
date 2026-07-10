@@ -101,6 +101,73 @@ function setFirebaseStatus(status) {
 }
 
 // =====================================================
+// LİGHTBOX — Resim Tam Ekran
+// =====================================================
+function openLightbox(src) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  if (!lb || !img) return;
+  img.src = src;
+  lb.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (lb) lb.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// =====================================================
+// DETAY MODALİ — IP & Not Tam Görünüm
+// =====================================================
+function openDataDetail(id) {
+  const item = state.workData.find(d => d.id === id);
+  if (!item) return;
+  document.getElementById('detail-title').textContent = item.title;
+  document.getElementById('detail-body').innerHTML = `
+    ${item.category ? `<div class="detail-badge">${escHtml(item.category)}</div>` : ''}
+    ${item.adslIp ? `<div class="detail-field"><div class="detail-field-label">ADSL IP</div><div class="detail-field-value">${escHtml(item.adslIp)}</div>${item.adslPort ? `<div class="detail-field-sub">Port: ${escHtml(item.adslPort)}</div>` : ''}</div>` : ''}
+    ${item.mobilIp ? `<div class="detail-field"><div class="detail-field-label">Mobil IP</div><div class="detail-field-value">${escHtml(item.mobilIp)}</div>${item.mobilPort ? `<div class="detail-field-sub">Port: ${escHtml(item.mobilPort)}</div>` : ''}</div>` : ''}
+    ${item.bankaApn ? `<div class="detail-field"><div class="detail-field-label">Banka APN</div><div class="detail-field-value">${escHtml(item.bankaApn)}</div></div>` : ''}
+    ${item.cagriTel ? `<div class="detail-field"><div class="detail-field-label">Çağrı Merkezi</div><div class="detail-field-value" style="display:flex;align-items:center;gap:12px;">${escHtml(item.cagriTel)}<a href="tel:${escHtml(item.cagriTel.replace(/\s/g,''))}" class="btn btn-primary btn-sm" style="text-decoration:none;">📞 Ara</a></div></div>` : ''}
+    ${item.body ? `<div class="detail-field"><div class="detail-field-label">Notlar</div><div class="detail-field-text">${escHtml(item.body)}</div></div>` : ''}
+    <div class="detail-actions">
+      <button class="btn btn-ghost" onclick="closeDetailModal();openEditDataModal('${item.id}')">✏️ Düzenle</button>
+    </div>`;
+  document.getElementById('detail-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function openNoteDetail(id) {
+  const item = state.workNotes.find(n => n.id === id);
+  if (!item) return;
+  document.getElementById('detail-title').textContent = item.title;
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-badge ${getNotesCatClass(item.category)}">${escHtml(item.category || 'Genel Notlar')}</div>
+    ${item.imageData ? `
+      <div class="detail-image-wrap" onclick="openLightbox('${item.imageData}')">
+        <img src="${item.imageData}" alt="Resim Notu" class="detail-image">
+        <div class="detail-image-hint">🔍 Büyütmek için tıkla</div>
+      </div>` : ''}
+    ${item.body ? `<div class="detail-field"><div class="detail-field-text" style="white-space:pre-wrap;font-size:16px;line-height:1.8;">${escHtml(item.body)}</div></div>` : ''}
+    <div class="detail-actions">
+      <button class="btn btn-ghost" onclick="closeDetailModal();openEditNoteModal('${item.id}')">✏️ Düzenle</button>
+    </div>`;
+  document.getElementById('detail-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetailModal() {
+  const el = document.getElementById('detail-overlay');
+  if (el) el.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeLightbox(); closeDetailModal(); }
+});
+
+// =====================================================
 // NAVIGATION
 // =====================================================
 const viewTitles = {
@@ -483,6 +550,10 @@ function renderDataList(items) {
           ${item.cagriTel ? `<div class="ip-grid"><div class="ip-item"><div class="ip-label">Çağrı Merkezi</div><div class="ip-value" style="display:flex;align-items:center;gap:8px;">${escHtml(item.cagriTel)}<a href="tel:${escHtml(item.cagriTel.replace(/\s/g,''))}" class="btn btn-primary btn-sm" style="padding:4px 10px;font-size:12px;text-decoration:none;" onclick="event.stopPropagation()">📞 Ara</a></div></div></div>` : ''}
           ${item.body ? `<div class="data-card-body">${escHtml(item.body)}</div>` : ''}
           <div class="data-card-actions" onclick="event.stopPropagation()">
+            <button class="btn btn-primary btn-sm" onclick="openDataDetail('${item.id}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              Detay
+            </button>
             <button class="btn btn-ghost btn-sm" onclick="openEditDataModal('${item.id}')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Düzenle
@@ -694,6 +765,10 @@ function renderNotesList(items) {
         ${item.imageData ? `<div class="note-image-wrap"><img src="${item.imageData}" alt="Resim Notu" class="note-image"></div>` : ''}
         ${item.body ? `<div class="data-card-body" style="white-space:pre-wrap;">${escHtml(item.body)}</div>` : ''}
         <div class="data-card-actions" onclick="event.stopPropagation()">
+          <button class="btn btn-primary btn-sm" onclick="openNoteDetail('${item.id}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            Detay
+          </button>
           <button class="btn btn-ghost btn-sm" onclick="openEditNoteModal('${item.id}')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Düzenle

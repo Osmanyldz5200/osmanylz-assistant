@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
@@ -613,6 +613,25 @@
       </div><!-- /views-container -->
     </main>
 
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()" style="display:none;">
+      <button class="lightbox-close" onclick="closeLightbox()">×</button>
+      <div class="lightbox-content" onclick="event.stopPropagation()">
+        <img id="lightbox-img" src="" alt="">
+      </div>
+    </div>
+
+    <!-- DETAIL MODAL -->
+    <div id="detail-overlay" class="detail-overlay" onclick="closeDetailModal()" style="display:none;">
+      <div class="detail-modal" onclick="event.stopPropagation()">
+        <div class="detail-modal-header">
+          <h2 id="detail-title" class="detail-modal-title"></h2>
+          <button class="detail-close-btn" onclick="closeDetailModal()">×</button>
+        </div>
+        <div id="detail-body" class="detail-modal-body"></div>
+      </div>
+    </div>
+
     <!-- MOBILE BOTTOM NAV -->
     <nav class="mobile-nav">
       <button class="mobile-nav-item active" data-view="dashboard" onclick="navigateTo('dashboard')">
@@ -661,6 +680,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- App JS -->
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

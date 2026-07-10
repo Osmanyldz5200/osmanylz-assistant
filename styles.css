@@ -1405,5 +1405,138 @@ select.form-control option { background: var(--bg-card); }
   .accordion-card.expanded .card-body-expand { max-height: 1200px; }
 }
 
+/* =====================================================
+   LİGHTBOX — Tam Ekran Resim
+   ===================================================== */
+.lightbox {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.95);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.lightbox-close {
+  position: fixed; top: 16px; right: 20px;
+  font-size: 36px; line-height: 1;
+  color: #fff; background: none; border: none;
+  cursor: pointer; z-index: 9001;
+  opacity: 0.8; transition: opacity 0.2s;
+}
+.lightbox-close:hover { opacity: 1; }
+.lightbox-content { max-width: 100%; max-height: 100%; }
+.lightbox-content img {
+  max-width: 90vw; max-height: 90vh;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.8);
+}
 
+/* =====================================================
+   DETAY MODALİ — Tam Görünüm
+   ===================================================== */
+.detail-overlay {
+  position: fixed; inset: 0; z-index: 8000;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.25s ease;
+}
+.detail-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+  animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.detail-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+.detail-modal-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+.detail-close-btn {
+  font-size: 28px; line-height: 1;
+  color: var(--text-muted);
+  background: none; border: none; cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+.detail-close-btn:hover { color: var(--text-primary); }
+.detail-modal-body {
+  padding: 20px 24px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.detail-badge {
+  display: inline-block;
+  padding: 4px 12px; border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+  background: var(--accent-blue-dim);
+  color: var(--accent-blue);
+  width: fit-content;
+}
+.detail-field {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+.detail-field-label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.detail-field-value {
+  font-size: 18px; font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  word-break: break-all;
+}
+.detail-field-sub {
+  font-size: 13px; color: var(--accent-blue);
+  margin-top: 4px;
+}
+.detail-field-text {
+  font-size: 15px; line-height: 1.75;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+.detail-image-wrap {
+  cursor: pointer; border-radius: var(--radius-sm);
+  overflow: hidden; position: relative;
+  transition: transform 0.2s;
+}
+.detail-image-wrap:hover { transform: scale(1.01); }
+.detail-image {
+  width: 100%; border-radius: var(--radius-sm);
+  display: block;
+}
+.detail-image-hint {
+  text-align: center; font-size: 12px;
+  color: var(--text-muted); margin-top: 6px;
+}
+.detail-actions {
+  display: flex; gap: 8px;
+  padding-top: 8px; border-top: 1px solid var(--border);
+}
 
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (max-width: 600px) {
+  .detail-overlay { padding: 12px; align-items: flex-end; }
+  .detail-modal { max-height: 92vh; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .detail-field-value { font-size: 16px; }
+}
