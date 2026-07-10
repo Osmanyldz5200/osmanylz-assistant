@@ -1,7 +1,7 @@
 // OsmanYLDZ İş Asistanı — Service Worker
-const CACHE_NAME = 'osmanyilmaz-asistan-v11';
+const CACHE_NAME = 'osmanyilmaz-asistan-v12';
 const CACHED_URLS = [
-  '/styles.css?v=6',
+  '/styles.css?v=7',
   '/app.js?v=7',
   '/manifest.json'
   // index.html kasıtlı olarak burada YOK — her zaman ağdan gelir
