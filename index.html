@@ -128,14 +128,14 @@
           </div>
           <span>Barkod Üretici</span>
         </button>
-        <button class="nav-item" data-view="scanner" onclick="navigateTo('scanner')">
+        <button class="nav-item" data-view="files" onclick="navigateTo('files')">
           <div class="nav-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-              <circle cx="12" cy="13" r="4"/>
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
             </svg>
           </div>
-          <span>Kamera Tarayıcı</span>
+          <span>Gerekli Dosyalar</span>
+          <span class="nav-badge" id="nav-badge-files">0</span>
         </button>
         <button class="nav-item" data-view="contacts" onclick="navigateTo('contacts')">
           <div class="nav-icon">
@@ -411,80 +411,30 @@
           </div>
         </section>
 
-        <!-- SCANNER VIEW -->
-        <section class="view" id="view-scanner">
+        <!-- FILES VIEW -->
+        <section class="view" id="view-files">
           <div class="view-inner">
             <div class="page-header">
               <div>
-                <h1 class="page-title">Kamera Tarayıcı</h1>
-                <p class="page-subtitle">Kameradan metin okuyun (OCR)</p>
+                <h1 class="page-title">Gerekli Dosyalar</h1>
+                <p class="page-subtitle">Formlar, dilekçeler ve önemli belgeler</p>
+              </div>
+              <button class="btn btn-primary admin-only" onclick="openAddFileModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Dosya Ekle
+              </button>
+            </div>
+            <div class="search-filter-bar">
+              <div class="search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="file-search" placeholder="Dosya ara..." oninput="filterFiles()">
               </div>
             </div>
-
-            <div class="scanner-layout">
-              <div class="card scanner-card">
-                <div id="scanner-container">
-                  <div class="scanner-placeholder" id="scanner-placeholder">
-                    <div class="scanner-placeholder-icon">
-                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-                        <circle cx="12" cy="13" r="4"/>
-                      </svg>
-                    </div>
-                    <p>Kamerayı başlatıp "Metni Oku" butonuna basın</p>
-                  </div>
-                  <div id="ocr-video-wrapper" style="display:none; position:relative;">
-                    <video id="ocr-video" autoplay playsinline muted style="width:100%; border-radius:10px; display:block;"></video>
-                    <div class="ocr-viewfinder-frame" id="ocr-viewfinder">
-                      <div class="vf-corner vf-tl"></div>
-                      <div class="vf-corner vf-tr"></div>
-                      <div class="vf-corner vf-bl"></div>
-                      <div class="vf-corner vf-br"></div>
-                      <div class="ocr-scan-line"></div>
-                    </div>
-                  </div>
-                  <div id="ocr-progress" style="display:none;" class="ocr-progress-bar">
-                    <div class="ocr-progress-fill" id="ocr-progress-fill"></div>
-                    <span id="ocr-progress-text">Okunuyor...</span>
-                  </div>
-                </div>
-                <div class="scanner-controls">
-                  <button class="btn btn-primary" id="btn-start-scanner" onclick="startScanner()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
-                    </svg>
-                    Kamerayı Başlat
-                  </button>
-                  <button class="btn btn-secondary" id="btn-capture-ocr" onclick="captureOCR()" style="display:none;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                    Metni Oku
-                  </button>
-                  <button class="btn btn-danger" id="btn-stop-scanner" onclick="stopScanner()" style="display:none;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/>
-                    </svg>
-                    Durdur
-                  </button>
-                </div>
-              </div>
-
-              <div class="card">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
-                  <h3 class="card-title" style="margin-bottom:0;">Okunan Metinler</h3>
-                  <button class="btn btn-ghost btn-sm" onclick="clearScanResults()">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
-                    </svg>
-                    Temizle
-                  </button>
-                </div>
-                <div id="scan-results" class="scan-results">
-                  <div class="empty-state-sm"><p>Henüz tarama yok</p></div>
-                </div>
-              </div>
-            </div>
+            <div id="files-list" class="cards-grid"></div>
           </div>
         </section>
 
@@ -690,6 +640,12 @@
         </svg>
         <span>Barkod</span>
       </button>
+      <button class="mobile-nav-item" data-view="files" onclick="navigateTo('files')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>Dosyalar</span>
+      </button>
       <button class="mobile-nav-item" data-view="contacts" onclick="navigateTo('contacts')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -709,6 +665,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <!-- App JS -->
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

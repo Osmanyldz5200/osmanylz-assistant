@@ -23,12 +23,14 @@ let state = {
   dataFilter: 'Tümü',
   notesFilter: 'Tümü',
   contactFilter: 'Tümü',
+  fileFilter: 'Tümü',
   scannerRunning: false,
   ocrStream: null,
   currentBarcodeText: '',
   editingDataId: null,
   editingNoteId: null,
   editingContactId: null,
+  editingFileId: null,
   isAdmin: localStorage.getItem('osmanylz_admin') === 'true',
 };
 
@@ -114,6 +116,14 @@ function initFirebase() {
         updateDashboard();
       }, err => {
         console.error('workNotes listener error:', err);
+      });
+
+    db.collection('workFiles').orderBy('createdAt', 'desc')
+      .onSnapshot(snap => {
+        state.workFiles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderFilesView();
+      }, err => {
+        console.error('workFiles listener error:', err);
       });
 
   } catch (e) {
@@ -1720,3 +1730,220 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
+
+// =====================================================
+// FILES VIEW (GEREKLİ DOSYALAR)
+// =====================================================
+function renderFilesView() {
+  if (state.activeView === 'files') {
+    filterFiles();
+  }
+}
+
+function filterFiles() {
+  const q = document.getElementById('file-search')?.value.toLowerCase() || '';
+  let filtered = state.workFiles || [];
+  if (q) {
+    filtered = filtered.filter(f => 
+      (f.title || '').toLowerCase().includes(q) || 
+      (f.category || '').toLowerCase().includes(q)
+    );
+  }
+  renderFilesList(filtered);
+}
+
+function renderFilesList(items) {
+  const container = document.getElementById('files-list');
+  if (!container) return;
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        <h3>Dosya Bulunamadı</h3>
+        <p>Henüz eklenmiş bir dosya yok.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const hasLink = !!item.fileLink;
+    const isBase64 = !!item.fileData;
+    let downloadHref = '#';
+    let downloadAttr = '';
+    
+    if (hasLink) {
+      downloadHref = item.fileLink;
+      downloadAttr = 'target="_blank" rel="noopener noreferrer"';
+    } else if (isBase64) {
+      downloadHref = item.fileData;
+      downloadAttr = `download="${item.fileName || 'dosya'}"`;
+    }
+
+    return `
+      <div class="data-card" style="display:flex; flex-direction:column; padding-bottom:12px;">
+        <div class="card-head" style="cursor:default; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:12px;">
+          <div class="card-head-left">
+            <div class="data-card-title">${escHtml(item.title)}</div>
+            <div class="card-preview">${escHtml(item.category || 'Belge')}</div>
+          </div>
+        </div>
+        <div class="card-body-expand" style="display:flex; flex-direction:column; max-height:none; opacity:1;">
+          ${item.description ? `<div class="data-card-body" style="margin-bottom:12px;">${escHtml(item.description)}</div>` : ''}
+          <div style="display:flex; gap:8px;">
+            <a href="${downloadHref}" ${downloadAttr} class="btn btn-primary btn-sm" style="flex:1; justify-content:center; text-decoration:none;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              ${hasLink ? 'Bağlantıyı Aç' : 'Dosyayı İndir'}
+            </a>
+          </div>
+          <div class="data-card-actions admin-only" onclick="event.stopPropagation()" style="margin-top:8px;">
+            <button class="btn btn-danger btn-sm w-full" onclick="confirmDeleteFile('${item.id}', '${escHtml(item.title).replace(/'/g,"\\'")}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              Sil
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openAddFileModal() {
+  state.editingFileId = null;
+  document.getElementById('modal-title').textContent = 'Yeni Dosya Ekle';
+  document.getElementById('modal-body').innerHTML = fileFormHTML({});
+  openModal();
+}
+
+function fileFormHTML(f) {
+  return `
+    <div class="form-group">
+      <label class="form-label">Başlık *</label>
+      <input type="text" id="f-title" class="form-control" placeholder="Örn: İzin Formu" value="${escHtml(f.title||'')}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <input type="text" id="f-category" class="form-control" placeholder="Örn: Form, Dilekçe..." value="${escHtml(f.category||'')}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Açıklama</label>
+      <textarea id="f-desc" class="form-control" placeholder="Dosya hakkında kısa bilgi...">${escHtml(f.description||'')}</textarea>
+    </div>
+    
+    <div class="card" style="margin-bottom:15px; padding:15px; background:var(--bg-primary); border:1px solid var(--border);">
+      <div style="font-weight:600; margin-bottom:10px; font-size:14px; color:var(--text-secondary);">Yükleme Yöntemi Seçin:</div>
+      
+      <!-- DOSYA YÜKLEME (Max 1MB) -->
+      <div class="form-group" style="margin-bottom:15px;">
+        <label class="form-label" style="display:flex; justify-content:space-between;">
+          <span>1. Doğrudan Dosya Seç</span>
+          <span style="font-size:11px; color:var(--text-muted);">(Max 1.5MB)</span>
+        </label>
+        <input type="file" id="f-upload" class="form-control" style="padding: 6px 12px;" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" onchange="handleFileUploadChange(this)">
+        <div id="f-upload-status" style="font-size:12px; margin-top:6px; color:var(--text-muted);"></div>
+        <input type="hidden" id="f-base64" value="${f.fileData || ''}">
+        <input type="hidden" id="f-filename" value="${escHtml(f.fileName || '')}">
+      </div>
+
+      <div style="text-align:center; margin:10px 0; font-size:12px; color:var(--text-muted);">— VEYA —</div>
+
+      <!-- LİNK YÜKLEME -->
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">2. İndirme Linki (Google Drive vb.)</label>
+        <input type="url" id="f-link" class="form-control" placeholder="https://..." value="${escHtml(f.fileLink||'')}">
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
+      <button class="btn btn-primary" onclick="saveFile()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Kaydet
+      </button>
+    </div>
+  `;
+}
+
+async function handleFileUploadChange(input) {
+  const file = input.files[0];
+  const statusEl = document.getElementById('f-upload-status');
+  if (!file) {
+    statusEl.textContent = '';
+    document.getElementById('f-base64').value = '';
+    document.getElementById('f-filename').value = '';
+    return;
+  }
+  
+  if (file.size > 1024 * 1024 * 1.5) { // 1.5 MB limit
+    statusEl.innerHTML = '<span style="color:var(--danger)">Dosya çok büyük. Lütfen küçültün veya link kullanın.</span>';
+    input.value = ''; // Reset file input
+    document.getElementById('f-base64').value = '';
+    return;
+  }
+
+  statusEl.textContent = 'Dosya işleniyor...';
+  
+  try {
+    const base64 = await toBase64(file);
+    document.getElementById('f-base64').value = base64;
+    document.getElementById('f-filename').value = file.name;
+    statusEl.innerHTML = `<span style="color:var(--success)">✅ Hazır: ${file.name}</span>`;
+  } catch (err) {
+    statusEl.innerHTML = '<span style="color:var(--danger)">Dosya okunamadı.</span>';
+  }
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+async function saveFile() {
+  const title = document.getElementById('f-title')?.value.trim();
+  if (!title) { showToast('Başlık zorunludur!', 'error'); return; }
+
+  const fileData = document.getElementById('f-base64')?.value;
+  const fileName = document.getElementById('f-filename')?.value;
+  const fileLink = document.getElementById('f-link')?.value.trim();
+
+  if (!fileData && !fileLink) {
+    showToast('Lütfen ya bir dosya seçin ya da link ekleyin!', 'error');
+    return;
+  }
+
+  const data = {
+    title,
+    category: document.getElementById('f-category')?.value.trim() || 'Belge',
+    description: document.getElementById('f-desc')?.value.trim() || '',
+    fileData: fileData || null,
+    fileName: fileName || null,
+    fileLink: fileLink || null
+  };
+
+  try {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('workFiles').add(data);
+    showToast('Dosya eklendi!', 'success');
+    closeModal();
+  } catch (e) {
+    showToast('Hata: ' + e.message, 'error');
+  }
+}
+
+async function deleteFile(id) {
+  try {
+    await db.collection('workFiles').doc(id).delete();
+    showToast('Dosya silindi.', 'info');
+  } catch (e) {
+    showToast('Silme hatası: ' + e.message, 'error');
+  }
+}
+
+function confirmDeleteFile(id, title) {
+  showConfirm(`"${title}" dosyasını silmek istediğinize emin misiniz?`, () => deleteFile(id));
+}
+
