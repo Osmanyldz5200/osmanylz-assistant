@@ -170,7 +170,7 @@ function openDataDetail(id) {
     ${item.bankaApn ? `<div class="detail-field"><div class="detail-field-label">Banka APN</div><div class="detail-field-value">${escHtml(item.bankaApn)}</div></div>` : ''}
     ${item.cagriTel ? `<div class="detail-field"><div class="detail-field-label">Çağrı Merkezi</div><div class="detail-field-value" style="display:flex;align-items:center;gap:12px;">${escHtml(item.cagriTel)}<a href="tel:${escHtml(item.cagriTel.replace(/\s/g,''))}" class="btn btn-primary btn-sm" style="text-decoration:none;">📞 Ara</a></div></div>` : ''}
     ${item.body ? `<div class="detail-field"><div class="detail-field-label">Notlar</div><div class="detail-field-text">${escHtml(item.body)}</div></div>` : ''}
-    <div class="detail-actions">
+    <div class="detail-actions admin-only">
       <button class="btn btn-ghost" onclick="closeDetailModal();openEditDataModal('${item.id}')">✏️ Düzenle</button>
     </div>`;
   document.getElementById('detail-overlay').style.display = 'flex';
@@ -189,7 +189,7 @@ function openNoteDetail(id) {
         <div class="detail-image-hint">🔍 Büyütmek için tıkla</div>
       </div>` : ''}
     ${item.body ? `<div class="detail-field"><div class="detail-field-text" style="white-space:pre-wrap;font-size:16px;line-height:1.8;">${escHtml(item.body)}</div></div>` : ''}
-    <div class="detail-actions">
+    <div class="detail-actions admin-only">
       <button class="btn btn-ghost" onclick="closeDetailModal();openEditNoteModal('${item.id}')">✏️ Düzenle</button>
     </div>`;
   document.getElementById('detail-overlay').style.display = 'flex';
